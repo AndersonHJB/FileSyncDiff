@@ -34,6 +34,15 @@ def compare_files(file1, file2):
 
 
 def compare_directories(dir1, dir2, ignore_files=None, ignore_dirs=None):
+    """
+    比较两个目录中的所有文件，忽略指定的文件和文件夹。
+
+    :param dir1: 第一个目录路径
+    :param dir2: 第二个目录路径
+    :param ignore_files: 要忽略的文件列表
+    :param ignore_dirs: 要忽略的文件夹列表
+    :return: 返回不同文件的列表和差异信息
+    """
     if ignore_files is None:
         ignore_files = []
     if ignore_dirs is None:
@@ -41,12 +50,15 @@ def compare_directories(dir1, dir2, ignore_files=None, ignore_dirs=None):
 
     diff_results = []
 
+    # 遍历第一个目录中的所有文件和文件夹
     for root, dirs, files in os.walk(dir1):
         relative_path = os.path.relpath(root, dir1)
 
+        # 如果该目录在忽略列表中，跳过
         if any(os.path.commonpath([root]) == os.path.commonpath([os.path.join(dir1, ig)]) for ig in ignore_dirs):
             continue
 
+        # 过滤掉忽略的文件夹
         dirs[:] = [d for d in dirs if d not in ignore_dirs]
 
         for file in files:
@@ -56,6 +68,7 @@ def compare_directories(dir1, dir2, ignore_files=None, ignore_dirs=None):
             file1 = os.path.join(root, file)
             file2 = os.path.join(dir2, relative_path, file)
 
+            # 如果文件不存在或文件内容不同
             if os.path.exists(file2) and not filecmp.cmp(file1, file2, shallow=False):
                 diff_count, diff_lines = compare_files(file1, file2)
                 diff_results.append({
@@ -72,12 +85,14 @@ def compare_directories(dir1, dir2, ignore_files=None, ignore_dirs=None):
                     'diff_lines': []
                 })
 
+    # 再遍历第二个目录中的所有文件和文件夹
     for root, dirs, files in os.walk(dir2):
         relative_path = os.path.relpath(root, dir2)
 
         if any(os.path.commonpath([root]) == os.path.commonpath([os.path.join(dir2, ig)]) for ig in ignore_dirs):
             continue
 
+        # 过滤掉忽略的文件夹
         dirs[:] = [d for d in dirs if d not in ignore_dirs]
 
         for file in files:
@@ -87,6 +102,7 @@ def compare_directories(dir1, dir2, ignore_files=None, ignore_dirs=None):
             file2 = os.path.join(root, file)
             file1 = os.path.join(dir1, relative_path, file)
 
+            # 如果文件只在第二个目录中存在
             if not os.path.exists(file1):
                 diff_results.append({
                     'file1': file1,
