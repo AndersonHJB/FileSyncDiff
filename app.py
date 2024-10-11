@@ -8,6 +8,13 @@ app = Flask(__name__)
 
 
 def compare_files(file1, file2):
+    """
+    比较两个文件内容并返回差异行数，处理不同的编码。
+
+    :param file1: 第一个文件路径
+    :param file2: 第二个文件路径
+    :return: 返回差异的行数和差异详细信息
+    """
     try:
         with open(file1, 'r', encoding='utf-8', errors='ignore') as f1, open(file2, 'r', encoding='utf-8',
                                                                              errors='ignore') as f2:
@@ -15,11 +22,12 @@ def compare_files(file1, file2):
             file2_lines = f2.readlines()
     except UnicodeDecodeError as e:
         print(f"无法解码文件: {file1} 或 {file2}, 错误: {e}")
-        return 0, []
+        return 0, []  # 返回0行差异，空的差异详情
 
     diff = difflib.unified_diff(file1_lines, file2_lines, lineterm='')
     diff_list = list(diff)
 
+    # 统计不同的行数
     diff_count = len([line for line in diff_list if line.startswith('- ') or line.startswith('+ ')])
 
     return diff_count, diff_list
