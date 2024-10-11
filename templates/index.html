@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文件比较</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>文件比较结果</h1>
+    <table>
+        <tr>
+            <th>文件1</th>
+            <th>文件2</th>
+            <th>差异行数</th>
+            <th>操作</th>
+        </tr>
+        {% for diff in differences %}
+        <tr>
+            <td>{{ diff.file1 }}</td>
+            <td>{{ diff.file2 }}</td>
+            <td>{{ diff.diff_count }}</td>
+            <td>
+                {% if diff.diff_count != '文件不存在' and diff.diff_count > 0 %}
+                <form method="POST" action="{{ url_for('overwrite') }}">
+                    <input type="hidden" name="file1" value="{{ diff.file1 }}">
+                    <input type="hidden" name="file2" value="{{ diff.file2 }}">
+                    <button type="submit">覆盖</button>
+                </form>
+                {% else %}
+                无操作
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
